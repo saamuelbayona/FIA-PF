@@ -15,6 +15,9 @@ class GetDashboardDataUseCase {
         case 'fuentes-usos':
           data = await this.dashboardRepository.getFuentesUsos();
           break;
+        case 'auditoria':
+          data = await this.dashboardRepository.getGestionAuditoria();
+          break;
         case 'cartera':
           data = await this.dashboardRepository.getGestionCartera();
           break;

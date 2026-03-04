@@ -30,51 +30,58 @@ export default function Home() {
       section: 'fuentes-usos'
     },
     {
+      icon: BarChart3,
+      label: 'Auditoría',
+      description: 'Merma y devoluciones',
+      color: 'from-yellow-500 to-yellow-600',
+      section: 'auditoria'
+    },
+    {
       icon: Briefcase,
-      label: 'Gestión de Cartera',
-      description: 'Cartera, morosidad y rotación',
+      label: 'Cartera',
+      description: 'Morosidad y rotación',
       color: 'from-green-500 to-green-600',
       section: 'cartera'
     },
     {
       icon: TrendingUp,
-      label: 'Gestión Comercial',
-      description: 'Ventas por línea de producto',
+      label: 'Comercial',
+      description: 'Ventas por línea',
       color: 'from-purple-500 to-purple-600',
       section: 'comercial'
     },
     {
       icon: Users,
-      label: 'Gestión Humana',
-      description: 'Costos de nómina y personal',
+      label: 'Humana',
+      description: 'Costos de nómina',
       color: 'from-orange-500 to-orange-600',
       section: 'humana'
     },
     {
       icon: Package,
-      label: 'Gestión Logística',
+      label: 'Logística',
       description: 'Costos operacionales',
       color: 'from-pink-500 to-pink-600',
       section: 'logistica'
     },
     {
       icon: Factory,
-      label: 'Gestión de Producción',
-      description: 'Granjas e histórico de sacrificio',
+      label: 'Producción',
+      description: 'Granjas y sacrificio',
       color: 'from-cyan-500 to-cyan-600',
       section: 'produccion-granjas'
     },
     {
       icon: Shield,
-      label: 'Sistema SAGRILAFT',
-      description: 'Cumplimiento normativo',
+      label: 'SAGRILAFT',
+      description: 'Cumplimiento',
       color: 'from-red-500 to-red-600',
       section: 'sagrilaft'
     },
     {
       icon: Briefcase,
-      label: 'Gerencia Estratégica',
-      description: 'Indicadores de gestión',
+      label: 'Gerencia',
+      description: 'Indicadores',
       color: 'from-indigo-500 to-indigo-600',
       section: 'gerencia'
     }
@@ -182,7 +189,7 @@ export default function Home() {
             transition={{ delay: 0.5 }}
             className="text-gray-400 text-base sm:text-lg"
           >
-            Sistema de Inteligencia Empresarial
+            Fiesta Intelligence Assistant
           </motion.p>
         </motion.div>
 
@@ -249,7 +256,7 @@ export default function Home() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 1.1 + index * 0.05 }}
-                  onClick={() => navigate(ROUTES.DASHBOARD)}
+                  onClick={() => navigate(`${ROUTES.DASHBOARD}?section=${section.section}`)}
                   className="group p-3 sm:p-4 rounded-lg sm:rounded-xl text-left transition-all hover:scale-105"
                   style={{
                     background: 'rgba(30, 41, 59, 0.5)',

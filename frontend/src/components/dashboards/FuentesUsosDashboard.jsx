@@ -3,7 +3,10 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 import { TrendingUp, TrendingDown, DollarSign } from 'lucide-react';
 
 export default function FuentesUsosDashboard({ data }) {
-  if (!data || data.length === 0) {
+  // Validar que data sea un array
+  const financialData = Array.isArray(data) ? data : [];
+  
+  if (financialData.length === 0) {
     return <div className="text-gray-400">No hay datos disponibles</div>;
   }
 
@@ -20,9 +23,9 @@ export default function FuentesUsosDashboard({ data }) {
   };
 
   // Separar por tipo
-  const activos = data.filter(d => d.tipo === 'ACTIVOS');
-  const pasivos = data.filter(d => d.tipo === 'PASIVOS');
-  const patrimonio = data.filter(d => d.tipo === 'PATRIMONIO');
+  const activos = financialData.filter(d => d.tipo === 'ACTIVOS');
+  const pasivos = financialData.filter(d => d.tipo === 'PASIVOS');
+  const patrimonio = financialData.filter(d => d.tipo === 'PATRIMONIO');
 
   // Calcular totales 2024 y 2025
   const totalActivos2025 = activos.reduce((sum, d) => sum + (parseFloat(d.valor_2025) || 0), 0);
@@ -38,8 +41,6 @@ export default function FuentesUsosDashboard({ data }) {
   const varActivos = totalActivos2024 > 0 ? (((totalActivos2025 - totalActivos2024) / totalActivos2024) * 100).toFixed(1) : 0;
   const varPasivos = totalPasivos2024 > 0 ? (((totalPasivos2025 - totalPasivos2024) / totalPasivos2024) * 100).toFixed(1) : 0;
   const varPatrimonio = totalPatrimonio2024 > 0 ? (((totalPatrimonio2025 - totalPatrimonio2024) / totalPatrimonio2024) * 100).toFixed(1) : 0;
-
-  const COLORS = ['#38bdf8', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6', '#ec4899'];
 
   return (
     <div className="space-y-4 sm:space-y-6">
@@ -178,7 +179,7 @@ export default function FuentesUsosDashboard({ data }) {
         <h3 className="text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4">Balance General Detallado - Comparativa 2024 vs 2025</h3>
         <div className="space-y-4 sm:space-y-6">
           {['ACTIVOS', 'PASIVOS', 'PATRIMONIO'].map((tipo) => {
-            const items = data.filter(d => d.tipo === tipo);
+            const items = financialData.filter(d => d.tipo === tipo);
             if (items.length === 0) return null;
             
             return (

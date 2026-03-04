@@ -7,6 +7,9 @@
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
     "export-db": "node src/scripts/exportDatabase.js",
+    "import-db": "node src/scripts/importDatabaseFromSQL.js",
+    "clean-import-db": "node src/scripts/cleanAndImportDatabase.js",
+    "setup-local-db": "node src/scripts/setupLocalDatabase.js",
     "test-connection": "node test-connection.js"
   },
   "engines": {

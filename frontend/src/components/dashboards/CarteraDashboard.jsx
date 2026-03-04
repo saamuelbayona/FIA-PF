@@ -3,8 +3,15 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 import { TrendingUp, TrendingDown, DollarSign, Calendar } from 'lucide-react';
 
 export default function CarteraDashboard({ data }) {
-  if (!data || data.length === 0) {
-    return <div className="text-gray-400">No hay datos disponibles</div>;
+  // Verificar que data sea un array
+  const carteraData = Array.isArray(data) ? data : [];
+
+  if (carteraData.length === 0) {
+    return (
+      <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl p-12 border border-slate-700 text-center">
+        <div className="text-gray-400 text-lg">No hay datos disponibles para Gestión de Cartera</div>
+      </div>
+    );
   }
 
   const formatCurrency = (value) => {
@@ -12,21 +19,22 @@ export default function CarteraDashboard({ data }) {
     const numValue = typeof value === 'string' ? parseFloat(value) : value;
     if (isNaN(numValue)) return '$0';
     
-    const formatted = new Intl.NumberFormat('es-CO', {
+    return new Intl.NumberFormat('es-CO', {
+      style: 'currency',
+      currency: 'COP',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0
     }).format(numValue);
-    return `$${formatted}`;
   };
 
-  // Calcular promedios y totales
-  const promedioCartera = data.reduce((sum, d) => sum + (parseFloat(d.total_cartera) || 0), 0) / data.length;
-  const promedioMora = data.reduce((sum, d) => sum + (parseFloat(d.indice_mora) || 0), 0) / data.length;
-  const promedioRotacion = data.reduce((sum, d) => sum + (parseFloat(d.rotacion_dias) || 0), 0) / data.length;
+  // Calcular promedios
+  const promedioCartera = carteraData.reduce((sum, d) => sum + (parseFloat(d.total_cartera) || 0), 0) / carteraData.length;
+  const promedioMora = carteraData.reduce((sum, d) => sum + (parseFloat(d.indice_mora) || 0), 0) / carteraData.length;
+  const promedioRotacion = carteraData.reduce((sum, d) => sum + (parseFloat(d.rotacion_dias) || 0), 0) / carteraData.length;
 
-  // Datos para gráficos comparativos
-  const chartData = data.map(d => ({
-    mes: d.mes,
+  // Datos para gráficos
+  const chartData = carteraData.map(d => ({
+    mes: (d.mes || '').toUpperCase(),
     exp2024: parseFloat(d.exp_millones_2024) || 0,
     exp2025: parseFloat(d.exp_millones_2025) || 0,
     mora: parseFloat(d.indice_mora) || 0,
@@ -47,7 +55,7 @@ export default function CarteraDashboard({ data }) {
             <DollarSign className="w-5 h-5 text-blue-400" />
           </div>
           <div className="text-2xl font-bold text-white">{formatCurrency(promedioCartera)}</div>
-          <div className="text-sm text-gray-400 mt-1">Promedio mensual</div>
+          <div className="text-sm text-gray-400 mt-1">Promedio mensual 2025</div>
         </motion.div>
 
         <motion.div
@@ -60,7 +68,7 @@ export default function CarteraDashboard({ data }) {
             <span className="text-gray-400 text-sm">Índice de Mora</span>
             <TrendingDown className="w-5 h-5 text-yellow-400" />
           </div>
-          <div className="text-2xl font-bold text-white">{promedioMora.toFixed(2)}%</div>
+          <div className="text-2xl font-bold text-white">{promedioMora.toFixed(1)}%</div>
           <div className="text-sm text-gray-400 mt-1">Promedio anual</div>
         </motion.div>
 
@@ -81,14 +89,14 @@ export default function CarteraDashboard({ data }) {
 
       {/* Gráficos */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Comparación Exportaciones 2024 vs 2025 */}
+        {/* Comparación 2024 vs 2025 */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
           className="bg-slate-800/50 backdrop-blur-xl rounded-xl p-6 border border-slate-700"
         >
-          <h3 className="text-lg font-semibold text-white mb-4">Exportaciones 2024 vs 2025 (Millones)</h3>
+          <h3 className="text-lg font-semibold text-white mb-4">Cartera 2024 vs 2025 (Millones)</h3>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
@@ -96,7 +104,7 @@ export default function CarteraDashboard({ data }) {
               <YAxis stroke="#9ca3af" />
               <Tooltip
                 contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}
-                formatter={(value) => `$${value}M`}
+                formatter={(value) => `$${value.toFixed(1)}M`}
               />
               <Legend />
               <Bar dataKey="exp2024" fill="#6366f1" name="2024" />
@@ -112,7 +120,7 @@ export default function CarteraDashboard({ data }) {
           transition={{ delay: 0.4 }}
           className="bg-slate-800/50 backdrop-blur-xl rounded-xl p-6 border border-slate-700"
         >
-          <h3 className="text-lg font-semibold text-white mb-4">Evolución Índice de Mora</h3>
+          <h3 className="text-lg font-semibold text-white mb-4">Evolución Índice de Mora 2025</h3>
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
@@ -120,7 +128,7 @@ export default function CarteraDashboard({ data }) {
               <YAxis stroke="#9ca3af" />
               <Tooltip
                 contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}
-                formatter={(value) => `${value}%`}
+                formatter={(value) => `${value.toFixed(1)}%`}
               />
               <Legend />
               <Line type="monotone" dataKey="mora" stroke="#f59e0b" strokeWidth={2} name="Índice Mora %" />
@@ -136,34 +144,55 @@ export default function CarteraDashboard({ data }) {
         transition={{ delay: 0.5 }}
         className="bg-slate-800/50 backdrop-blur-xl rounded-xl p-6 border border-slate-700 overflow-x-auto"
       >
-        <h3 className="text-lg font-semibold text-white mb-4">Detalle Mensual de Cartera</h3>
+        <h3 className="text-lg font-semibold text-white mb-4">Detalle Mensual de Cartera 2025</h3>
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-slate-700">
               <th className="text-left py-2 px-4 text-gray-400">Mes</th>
               <th className="text-right py-2 px-4 text-gray-400">Total Cartera</th>
-              <th className="text-right py-2 px-4 text-gray-400">Cartera Vencida</th>
-              <th className="text-right py-2 px-4 text-gray-400">Índice Mora</th>
-              <th className="text-right py-2 px-4 text-gray-400">Rotación (días)</th>
-              <th className="text-right py-2 px-4 text-gray-400">Exp 2024 (M)</th>
-              <th className="text-right py-2 px-4 text-gray-400">Exp 2025 (M)</th>
+              <th className="text-right py-2 px-4 text-gray-400">Mora %</th>
+              <th className="text-right py-2 px-4 text-gray-400">Rotación</th>
+              <th className="text-right py-2 px-4 text-gray-400">2024 (M)</th>
+              <th className="text-right py-2 px-4 text-gray-400">2025 (M)</th>
+              <th className="text-right py-2 px-4 text-gray-400">Var %</th>
             </tr>
           </thead>
           <tbody>
-            {data.map((row, idx) => (
+            {carteraData.map((row, idx) => (
               <tr key={idx} className="border-b border-slate-700/50 hover:bg-slate-700/30">
-                <td className="py-2 px-4 text-white font-medium">{row.mes || 'N/A'}</td>
+                <td className="py-2 px-4 text-white font-medium">{(row.mes || 'N/A').toUpperCase()}</td>
                 <td className="py-2 px-4 text-right text-blue-400">{formatCurrency(row.total_cartera)}</td>
-                <td className="py-2 px-4 text-right text-red-400">{formatCurrency(row.cartera_vencida)}</td>
-                <td className="py-2 px-4 text-right text-yellow-400">{parseFloat(row.indice_mora || 0).toFixed(2)}%</td>
-                <td className="py-2 px-4 text-right text-green-400">{parseFloat(row.rotacion_dias || 0).toFixed(0)}</td>
+                <td className="py-2 px-4 text-right text-yellow-400">{parseFloat(row.indice_mora || 0).toFixed(1)}%</td>
+                <td className="py-2 px-4 text-right text-green-400">{parseFloat(row.rotacion_dias || 0).toFixed(0)} días</td>
                 <td className="py-2 px-4 text-right text-purple-400">${parseFloat(row.exp_millones_2024 || 0).toFixed(1)}M</td>
                 <td className="py-2 px-4 text-right text-green-400">${parseFloat(row.exp_millones_2025 || 0).toFixed(1)}M</td>
+                <td className={`py-2 px-4 text-right font-bold ${parseFloat(row.variacion_pct || 0) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                  {parseFloat(row.variacion_pct || 0) >= 0 ? '+' : ''}{parseFloat(row.variacion_pct || 0).toFixed(0)}%
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
       </motion.div>
+
+      {/* Comentarios */}
+      {carteraData.some(d => d.comentario) && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+          className="bg-slate-800/50 backdrop-blur-xl rounded-xl p-6 border border-slate-700"
+        >
+          <h3 className="text-lg font-semibold text-white mb-4">Análisis y Comentarios</h3>
+          <div className="space-y-3">
+            {carteraData.filter(d => d.comentario).map((row, idx) => (
+              <div key={idx} className="bg-slate-700/30 rounded-lg p-4 border border-slate-600/50">
+                <p className="text-gray-300 text-sm leading-relaxed">{row.comentario}</p>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+      )}
     </div>
   );
 }

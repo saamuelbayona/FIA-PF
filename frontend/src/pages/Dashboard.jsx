@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Sidebar from '../components/Sidebar';
 import DashboardRenderer from '../components/dashboards/DashboardRenderer';
@@ -9,7 +9,9 @@ import { ROUTES } from '../routes/paths';
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const [activeSection, setActiveSection] = useState('fuentes-usos');
+  const [searchParams] = useSearchParams();
+  const sectionFromUrl = searchParams.get('section') || 'fuentes-usos';
+  const [activeSection, setActiveSection] = useState(sectionFromUrl);
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -17,6 +19,7 @@ export default function Dashboard() {
   // Mapeo de secciones a tipos de dashboard
   const sectionToDashboardType = {
     'fuentes-usos': 'fuentes-usos',
+    'auditoria': 'auditoria',
     'cartera': 'cartera',
     'comercial': 'comercial',
     'humana': 'humana',
@@ -26,6 +29,14 @@ export default function Dashboard() {
     'sagrilaft': 'sagrilaft',
     'gerencia': 'gerencia'
   };
+
+  // Actualizar sección cuando cambia el parámetro URL
+  useEffect(() => {
+    const section = searchParams.get('section');
+    if (section && section !== activeSection) {
+      setActiveSection(section);
+    }
+  }, [searchParams]);
 
   // Verificar autenticación al montar el componente
   useEffect(() => {

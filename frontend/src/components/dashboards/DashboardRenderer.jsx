@@ -7,9 +7,10 @@ import SagrilaftDashboard from './SagrilaftDashboard';
 import GranjasDashboard from './GranjasDashboard';
 import ComercialDashboard from './ComercialDashboard';
 import ProduccionDashboard from './ProduccionDashboard';
+import AuditoriaDashboard from './AuditoriaDashboard';
 
 export default function DashboardRenderer({ type, data }) {
-  if (!data || data.length === 0) {
+  if (!data || (Array.isArray(data) && data.length === 0)) {
     return (
       <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl p-12 border border-slate-700 text-center">
         <div className="text-gray-400 text-lg">No hay datos disponibles para este dashboard</div>
@@ -20,6 +21,8 @@ export default function DashboardRenderer({ type, data }) {
   switch (type) {
     case 'fuentes-usos':
       return <FuentesUsosDashboard data={data} />;
+    case 'auditoria':
+      return <AuditoriaDashboard data={data} />;
     case 'cartera':
       return <CarteraDashboard data={data} />;
     case 'comercial':

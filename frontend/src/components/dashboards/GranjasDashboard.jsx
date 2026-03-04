@@ -3,24 +3,28 @@ import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Toolti
 import { Home, TrendingUp } from 'lucide-react';
 
 export default function GranjasDashboard({ data }) {
-  if (!data || data.length === 0) {
+  // Validar que data sea un array
+  const granjasData = Array.isArray(data) ? data : [];
+  
+  if (granjasData.length === 0) {
     return <div className="text-gray-400">No hay datos disponibles</div>;
   }
 
-  const totalMetros = data.reduce((sum, d) => sum + (d.metros || 0), 0);
-  const totalAves = data.reduce((sum, d) => sum + (d.aves || 0), 0);
-  const totalGranjas = data.length;
+  const totalMetros = granjasData.reduce((sum, d) => sum + (parseFloat(d.metros) || 0), 0);
+  const totalAves = granjasData.reduce((sum, d) => sum + (parseFloat(d.aves) || 0), 0);
+  const totalGranjas = granjasData.length;
 
   const COLORS = ['#38bdf8', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6', '#ec4899'];
 
   // Agrupar por tipo
-  const porTipo = data.reduce((acc, d) => {
-    if (!acc[d.tipo]) {
-      acc[d.tipo] = { metros: 0, aves: 0, count: 0 };
+  const porTipo = granjasData.reduce((acc, d) => {
+    const tipo = d.tipo || 'Sin tipo';
+    if (!acc[tipo]) {
+      acc[tipo] = { metros: 0, aves: 0, count: 0 };
     }
-    acc[d.tipo].metros += d.metros || 0;
-    acc[d.tipo].aves += d.aves || 0;
-    acc[d.tipo].count += 1;
+    acc[tipo].metros += parseFloat(d.metros) || 0;
+    acc[tipo].aves += parseFloat(d.aves) || 0;
+    acc[tipo].count += 1;
     return acc;
   }, {});
 
@@ -137,7 +141,7 @@ export default function GranjasDashboard({ data }) {
       >
         <h3 className="text-lg font-semibold text-white mb-4">Capacidad por Granja</h3>
         <ResponsiveContainer width="100%" height={350}>
-          <BarChart data={data} layout="vertical">
+          <BarChart data={granjasData} layout="vertical">
             <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
             <XAxis type="number" stroke="#9ca3af" />
             <YAxis dataKey="granja" type="category" stroke="#9ca3af" width={150} />
@@ -170,14 +174,16 @@ export default function GranjasDashboard({ data }) {
             </tr>
           </thead>
           <tbody>
-            {data.map((row, idx) => {
-              const densidad = (row.metros > 0 && row.aves) ? (row.aves / row.metros).toFixed(2) : 'N/A';
+            {granjasData.map((row, idx) => {
+              const metros = parseFloat(row.metros) || 0;
+              const aves = parseFloat(row.aves) || 0;
+              const densidad = (metros > 0 && aves) ? (aves / metros).toFixed(2) : 'N/A';
               return (
                 <tr key={idx} className="border-b border-slate-700/50 hover:bg-slate-700/30">
-                  <td className="py-3 px-4 text-white">{row.tipo}</td>
-                  <td className="py-3 px-4 text-white">{row.granja}</td>
-                  <td className="py-3 px-4 text-right text-green-400">{row.metros?.toLocaleString()}</td>
-                  <td className="py-3 px-4 text-right text-blue-400">{row.aves?.toLocaleString()}</td>
+                  <td className="py-3 px-4 text-white">{row.tipo || 'N/A'}</td>
+                  <td className="py-3 px-4 text-white">{row.granja || 'N/A'}</td>
+                  <td className="py-3 px-4 text-right text-green-400">{metros.toLocaleString()}</td>
+                  <td className="py-3 px-4 text-right text-blue-400">{aves.toLocaleString()}</td>
                   <td className="py-3 px-4 text-right text-purple-400">{densidad}</td>
                 </tr>
               );

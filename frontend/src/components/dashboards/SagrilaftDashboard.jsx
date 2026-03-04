@@ -3,8 +3,17 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 import { Shield, AlertTriangle, CheckCircle } from 'lucide-react';
 
 export default function SagrilaftDashboard({ data }) {
-  if (!data || data.length === 0) {
+  // Validar que data sea un objeto con las propiedades esperadas
+  if (!data || typeof data !== 'object') {
     return <div className="text-gray-400">No hay datos disponibles</div>;
+  }
+
+  const stakeholders = Array.isArray(data.stakeholders) ? data.stakeholders : [];
+  const totales = data.totales || { total_validados: 0 };
+  const analisis = Array.isArray(data.analisis) ? data.analisis : [];
+
+  if (stakeholders.length === 0) {
+    return <div className="text-gray-400">No hay datos de stakeholders disponibles</div>;
   }
 
   const formatNumber = (value) => {
@@ -19,18 +28,18 @@ export default function SagrilaftDashboard({ data }) {
   };
 
   // Calcular totales
-  const totalRechazados = data.reduce((sum, d) => sum + (parseFloat(d.rechazados) || 0), 0);
-  const promedioLaFt = data.reduce((sum, d) => sum + (parseFloat(d.pct_la_ft) || 0), 0) / data.length;
-  const promedioFallaDoc = data.reduce((sum, d) => sum + (parseFloat(d.pct_falla_doc) || 0), 0) / data.length;
-  const promedioAntecedentes = data.reduce((sum, d) => sum + (parseFloat(d.pct_antecedentes) || 0), 0) / data.length;
+  const totalRechazados = stakeholders.reduce((sum, d) => sum + (parseFloat(d.rechazados) || 0), 0);
+  const promedioLaFt = stakeholders.reduce((sum, d) => sum + (parseFloat(d.la_pct) || 0), 0) / stakeholders.length;
+  const promedioFallaDoc = stakeholders.reduce((sum, d) => sum + (parseFloat(d.documentacion_pct) || 0), 0) / stakeholders.length;
+  const promedioAntecedentes = stakeholders.reduce((sum, d) => sum + (parseFloat(d.antecedentes_pct) || 0), 0) / stakeholders.length;
 
   // Datos para gráficos
-  const chartData = data.map(d => ({
+  const chartData = stakeholders.map(d => ({
     contraparte: d.contraparte && d.contraparte.length > 15 ? d.contraparte.substring(0, 15) + '...' : (d.contraparte || 'Sin nombre'),
     rechazados: parseFloat(d.rechazados) || 0,
-    laFt: parseFloat(d.pct_la_ft) || 0,
-    fallaDoc: parseFloat(d.pct_falla_doc) || 0,
-    antecedentes: parseFloat(d.pct_antecedentes) || 0
+    laFt: parseFloat(d.la_pct) || 0,
+    fallaDoc: parseFloat(d.documentacion_pct) || 0,
+    antecedentes: parseFloat(d.antecedentes_pct) || 0
   }));
 
   // Datos para gráfico de pastel de motivos
@@ -80,11 +89,11 @@ export default function SagrilaftDashboard({ data }) {
           className="bg-gradient-to-br from-green-500/20 to-green-600/20 backdrop-blur-xl rounded-xl p-6 border border-green-500/30"
         >
           <div className="flex items-center justify-between mb-2">
-            <span className="text-gray-400 text-sm">Falla Documental</span>
+            <span className="text-gray-400 text-sm">Total Validados</span>
             <CheckCircle className="w-5 h-5 text-green-400" />
           </div>
-          <div className="text-2xl font-bold text-white">{promedioFallaDoc.toFixed(1)}%</div>
-          <div className="text-sm text-gray-400 mt-1">Promedio de fallas</div>
+          <div className="text-2xl font-bold text-white">{formatNumber(totales.total_validados)}</div>
+          <div className="text-sm text-gray-400 mt-1">Contrapartes validadas</div>
         </motion.div>
       </div>
 
@@ -160,21 +169,47 @@ export default function SagrilaftDashboard({ data }) {
               <th className="text-right py-2 px-4 text-gray-400">% LA/FT</th>
               <th className="text-right py-2 px-4 text-gray-400">% Falla Doc</th>
               <th className="text-right py-2 px-4 text-gray-400">% Antecedentes</th>
+              <th className="text-right py-2 px-4 text-gray-400">% PEPs</th>
             </tr>
           </thead>
           <tbody>
-            {data.map((row, idx) => (
+            {stakeholders.map((row, idx) => (
               <tr key={idx} className="border-b border-slate-700/50 hover:bg-slate-700/30">
                 <td className="py-2 px-4 text-white font-medium">{row.contraparte || 'Sin nombre'}</td>
                 <td className="py-2 px-4 text-right text-red-400">{formatNumber(row.rechazados)}</td>
-                <td className="py-2 px-4 text-right text-yellow-400">{parseFloat(row.pct_la_ft || 0).toFixed(1)}%</td>
-                <td className="py-2 px-4 text-right text-orange-400">{parseFloat(row.pct_falla_doc || 0).toFixed(1)}%</td>
-                <td className="py-2 px-4 text-right text-purple-400">{parseFloat(row.pct_antecedentes || 0).toFixed(1)}%</td>
+                <td className="py-2 px-4 text-right text-yellow-400">{parseFloat(row.la_pct || 0).toFixed(1)}%</td>
+                <td className="py-2 px-4 text-right text-orange-400">{parseFloat(row.documentacion_pct || 0).toFixed(1)}%</td>
+                <td className="py-2 px-4 text-right text-purple-400">{parseFloat(row.antecedentes_pct || 0).toFixed(1)}%</td>
+                <td className="py-2 px-4 text-right text-pink-400">{parseFloat(row.peps_pct || 0).toFixed(1)}%</td>
               </tr>
             ))}
           </tbody>
         </table>
       </motion.div>
+
+      {/* Análisis Detallado */}
+      {analisis.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+          className="bg-slate-800/50 backdrop-blur-xl rounded-xl p-6 border border-slate-700"
+        >
+          <h3 className="text-lg font-semibold text-white mb-4">Análisis SAGRILAFT 2025-2026</h3>
+          <div className="space-y-4">
+            {analisis.map((item, idx) => (
+              <div key={idx} className="bg-slate-700/30 rounded-lg p-4 border border-slate-600">
+                <div className="text-sm text-blue-400 font-semibold mb-2">{item.categoria}</div>
+                <div className="text-white font-medium mb-1">{item.elemento}</div>
+                <div className="text-gray-300 text-sm mb-2">{item.dato_principal}</div>
+                {item.narrativa && (
+                  <div className="text-gray-400 text-xs italic">{item.narrativa}</div>
+                )}
+              </div>
+            ))}
+          </div>
+        </motion.div>
+      )}
     </div>
   );
 }

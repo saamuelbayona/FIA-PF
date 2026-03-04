@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/authService';
 import { ROUTES } from '../routes/paths';
 import { useState } from 'react';
+import orbImage from '../assets/pollo_fiesta_FIA.png';
 
 export default function Sidebar({ activeSection, setActiveSection, onLogout }) {
   const user = authService.getUser();
@@ -25,6 +26,13 @@ export default function Sidebar({ activeSection, setActiveSection, onLogout }) {
       icon: ArrowLeftRight,
       type: 'single',
       dashboardType: 'fuentes-usos'
+    },
+    { 
+      id: 'auditoria', 
+      label: 'Auditoría', 
+      icon: Shield,
+      type: 'single',
+      dashboardType: 'auditoria'
     },
     { 
       id: 'cartera', 
@@ -131,15 +139,35 @@ export default function Sidebar({ activeSection, setActiveSection, onLogout }) {
             transition={{ type: "spring", stiffness: 260, damping: 20 }}
           >
             <div className="flex items-center gap-3 mb-3">
-              <div 
-                className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold"
+              <motion.div 
+                className="w-12 h-12 rounded-full flex items-center justify-center overflow-hidden"
                 style={{
-                  background: 'radial-gradient(circle at 30% 30%, #38bdf8, #1d4ed8)',
+                  background: 'radial-gradient(circle, rgba(56, 189, 248, 0.3), rgba(0, 0, 0, 0.9))',
+                  border: '2px solid rgba(56, 189, 248, 0.6)',
                   boxShadow: '0 0 20px rgba(56, 189, 248, 0.5)'
                 }}
+                animate={{
+                  boxShadow: [
+                    '0 0 20px rgba(56, 189, 248, 0.5)',
+                    '0 0 30px rgba(56, 189, 248, 0.7)',
+                    '0 0 20px rgba(56, 189, 248, 0.5)',
+                  ]
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
               >
-                FI
-              </div>
+                <img 
+                  src={orbImage} 
+                  alt="FIA Logo" 
+                  className="w-full h-full object-cover"
+                  style={{
+                    filter: 'brightness(1.2) contrast(1.1)'
+                  }}
+                />
+              </motion.div>
               <h2 className="text-xl font-bold text-white">
                 FIA Intelligence
               </h2>

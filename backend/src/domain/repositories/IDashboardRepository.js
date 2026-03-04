@@ -38,6 +38,10 @@ class IDashboardRepository {
   async getGestionGerencia() {
     throw new Error('Método getGestionGerencia() debe ser implementado');
   }
+
+  async getGestionAuditoria() {
+    throw new Error('Método getGestionAuditoria() debe ser implementado');
+  }
 }
 
 module.exports = IDashboardRepository;
